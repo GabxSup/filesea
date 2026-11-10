@@ -1,0 +1,11 @@
+{
+  "identifier": "default",
+  "description": "Permite invocar las operaciones explícitas del backend y abrir archivos o diálogos del sistema.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "shell:allow-open",
+    "dialog:allow-open",
+    "dialog:allow-save"
+  ]
+}

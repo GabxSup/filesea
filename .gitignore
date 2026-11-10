@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Rust / Cargo build output
+src-tauri/target/
+
+# Tauri generated files
+src-tauri/gen/
+
+# Generated icons (reproducible via gen_icons.py)
+# Keep them in git so the build works out of the box
+# src-tauri/icons/
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Secrets / env
+.env
+.env.local

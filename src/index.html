@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#12131a" />
+  <title>Filesea</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="toolbar" id="toolbar">
+    <div class="toolbar-left" aria-label="Navegación">
+      <button class="tb-btn" id="btnBack" title="Atrás (Alt+←)" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button class="tb-btn" id="btnForward" title="Adelante (Alt+→)" aria-label="Adelante"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+      <button class="tb-btn" id="btnUp" title="Subir (Alt+↑)" aria-label="Subir"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+      <button class="tb-btn" id="btnRefresh" title="Actualizar (F5)" aria-label="Actualizar"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9A9 9 0 0 1 19 6l4 4M1 14l4 4a9 9 0 0 0 15.5-3"/></svg></button>
+    </div>
+    <nav class="breadcrumb" id="breadcrumb" aria-label="Ruta actual">
+      <input class="address-input" id="addressInput" type="text" autocomplete="off" spellcheck="false" aria-label="Introducir una ruta" hidden />
+    </nav>
+    <div class="toolbar-right">
+      <button class="tb-btn" id="btnNewFolder" title="Nueva carpeta" aria-label="Nueva carpeta"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M12 11v6M9 14h6"/></svg></button>
+      <button class="tb-btn" id="btnFavorite" title="Añadir/quitar carpeta actual de Favoritos" aria-label="Alternar favorito"><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3z"/></svg></button>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="search" id="searchInput" placeholder="Buscar en la carpeta…" autocomplete="off" aria-label="Buscar" />
+        <button class="search-clear" id="searchClear" title="Limpiar búsqueda" aria-label="Limpiar búsqueda"><svg viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
+      </div>
+      <button class="tb-btn scope-btn" id="btnSearchScope" title="Incluir subcarpetas" aria-label="Alternar búsqueda en subcarpetas" aria-pressed="false">↳</button>
+      <div class="view-toggle" role="group" aria-label="Modo de vista">
+        <button class="tb-btn view-btn active" id="viewList" title="Lista (⌘/Ctrl+1)" aria-label="Vista de lista" data-view="list"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></svg></button>
+        <button class="tb-btn view-btn" id="viewGrid" title="Iconos (⌘/Ctrl+2)" aria-label="Vista de iconos" data-view="grid"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+      </div>
+      <button class="tb-btn" id="btnHidden" title="Mostrar archivos ocultos (⌘/Ctrl+H)" aria-label="Mostrar archivos ocultos" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+  </header>
+
+  <div class="tabbar" id="tabStrip" role="tablist" aria-label="Pestañas">
+    <div class="tabs-list" id="tabsList"></div>
+    <button class="new-tab-btn" id="btnNewTab" title="Nueva pestaña (⌘/Ctrl+T)" aria-label="Nueva pestaña">+</button>
+  </div>
+
+  <div class="app-body">
+    <aside class="sidebar" id="sidebar" aria-label="Barra lateral">
+      <section class="sidebar-section"><h3 class="sidebar-heading">Lugares</h3><ul class="sidebar-list" id="placesList"></ul></section>
+      <section class="sidebar-section"><h3 class="sidebar-heading">Volúmenes</h3><ul class="sidebar-list" id="volumesList"></ul></section>
+      <section class="sidebar-section"><div class="sidebar-heading-row"><h3 class="sidebar-heading">Favoritos</h3><button class="tiny-btn" id="btnAddFavorite" title="Añadir carpeta actual">+</button></div><ul class="sidebar-list" id="favoritesList"></ul></section>
+    </aside>
+
+    <main class="main-panel" id="mainPanel">
+      <div class="loading" id="loading" hidden><div class="spinner"></div><span>Cargando…</span></div>
+      <div class="error-state" id="errorState" hidden><span class="state-icon">!</span><p id="errorMsg">Error</p><button class="btn-secondary" id="btnRetry">Reintentar</button></div>
+      <div class="files-container list-view" id="filesContainer" role="listbox" aria-multiselectable="true" tabindex="0"></div>
+      <div class="empty-state" id="emptyState" hidden><span class="state-icon">📂</span><p id="emptyMessage">Esta carpeta está vacía</p><span class="empty-hint">Crea una carpeta o arrastra archivos aquí</span></div>
+    </main>
+  </div>
+
+  <footer class="statusbar" id="statusbar"><span id="statusItems">—</span><span id="statusSelected"></span><span id="statusPath"></span></footer>
+
+  <div class="context-menu" id="contextMenu" hidden role="menu">
+    <ul>
+      <li class="ctx-item" data-action="open" role="menuitem">Abrir</li>
+      <li class="ctx-item" data-action="preview" role="menuitem">Vista previa</li>
+      <li class="ctx-item" data-action="reveal" role="menuitem">Mostrar en el gestor de archivos</li>
+      <li class="ctx-item" data-action="open-terminal" role="menuitem">Abrir terminal aquí</li>
+      <li class="ctx-separator"></li>
+      <li class="ctx-item" data-action="copy" role="menuitem">Copiar</li>
+      <li class="ctx-item" data-action="cut" role="menuitem">Cortar</li>
+      <li class="ctx-item" data-action="paste" id="ctxPaste" role="menuitem">Pegar</li>
+      <li class="ctx-item" data-action="duplicate" role="menuitem">Duplicar</li>
+      <li class="ctx-item" data-action="rename" role="menuitem">Renombrar</li>
+      <li class="ctx-item" data-action="favorite" role="menuitem">Añadir a Favoritos</li>
+      <li class="ctx-separator"></li>
+      <li class="ctx-item" data-action="compress" role="menuitem">Comprimir como ZIP</li>
+      <li class="ctx-item" data-action="extract" role="menuitem">Extraer aquí</li>
+      <li class="ctx-separator"></li>
+      <li class="ctx-item ctx-item--danger" data-action="trash" role="menuitem">Mover a la papelera</li>
+      <li class="ctx-separator"></li>
+      <li class="ctx-item" data-action="new-folder" role="menuitem">Nueva carpeta</li>
+      <li class="ctx-item" data-action="properties" role="menuitem">Propiedades</li>
+    </ul>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h2 class="modal-title" id="modalTitle">Filesea</h2>
+      <p class="modal-description" id="modalDescription"></p>
+      <input class="modal-input" id="modalInput" type="text" spellcheck="false" />
+      <div class="modal-actions"><button class="btn-secondary" id="modalCancel">Cancelar</button><button class="btn-primary" id="modalConfirm">Aceptar</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="propsOverlay" hidden>
+    <div class="modal modal--wide" id="propsModal" role="dialog" aria-modal="true" aria-labelledby="propsName">
+      <div class="props-header"><span class="props-icon" id="propsIcon"></span><div><h2 class="modal-title" id="propsName"></h2><p class="props-type" id="propsType"></p></div></div>
+      <dl class="props-grid" id="propsGrid"></dl>
+      <div class="modal-actions"><button class="btn-primary" id="propsClose">Cerrar</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay preview-overlay" id="previewOverlay" hidden>
+    <div class="preview-modal" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+      <div class="preview-header"><h2 id="previewTitle"></h2><button class="tb-btn" id="previewClose" aria-label="Cerrar vista previa">×</button></div>
+      <div class="preview-content" id="previewContent"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
